@@ -9,9 +9,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target: [ethglobal] # add more here for other accounts; implies CLASPRC_{NAME} exists w/ oauth
     env:
       SCRIPT_ID: "1eKtnybTCz-GKohMdtdEKVDBUzFK3suniSAT0UDEKsM_Fm5dR9aRMs3WN"
     steps:
@@ -21,27 +18,27 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '22.4.1'
 
-      - name: Install clasp
-        run: npm install -g @google/clasp
+      - name: Install dependencies
+        run: |
+          npm install -g @google/clasp
+          npm install
 
       - name: Set up .clasp.json file
         run: |
-          echo '{"scriptId":"${SCRIPT_ID}","rootDir":"dist"}' > ${{ github.workspace }}/allhands/.clasp.json
+          echo '{"scriptId":"${{ env.SCRIPT_ID }}","rootDir":"dist"}' > $GITHUB_WORKSPACE/.clasp.json
 
       - name: Set up OAuth credentials
-        env:
-          CLASPRC_CONTENT: ${{ secrets.CLASPRC_${{ matrix.target | upper }} }}
         run: |
-          echo "$CLASPRC_CONTENT" | base64 -d > ~/.clasprc.json
+          echo "${{ secrets.CLASPRC_ETHGLOBAL }}" | base64 -d > ~/.clasprc.json
+          echo "${{ secrets.CLASPRC_ETHGLOBAL }}" | base64 -d > $GITHUB_WORKSPACE/.clasprc.json
 
       - name: Build the latest
         run: npm run build
 
-      - name: Deploy ${{ matrix.target }}
+      - name: Deploy ethglobal
         run: |
-          echo "Deploying ${{ matrix.target }}..."
-          cd ${{ github.workspace }}/allhands
-          clasp push && echo "Deploying ${{ matrix.target }}... done."
-
+          echo "Deploying ethglobal..."
+          cd $GITHUB_WORKSPACE
+          clasp push -f && echo "Deploying ethglobal... done."
