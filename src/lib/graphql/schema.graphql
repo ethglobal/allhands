@@ -63,8 +63,8 @@ query GetProjects($endCursor: String) {
                         name: { nin: ["Canceled", "Completed", "Backlog"] }
                     }
                 }
-                { completedAt: { gte: "-P14D" } }
-                { canceledAt: { gte: "-P14D" } }
+                { completedAt: { gte: "-P28D" } }
+                { canceledAt: { gte: "-P28D" } }
             ]
         }
         first: 50
